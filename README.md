@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="scrollxuidesign-portfolio_template" src="https://github.com/Adityakishore0/scrollxuidesign-portfolio_template/public/portfolio_template.gif" width="90%">
+<img width="90%" alt="portfolio_template" src="https://github.com/user-attachments/assets/aabfc12f-05a4-4fb5-add3-b38c5e00695f" />
 </div>
 
 # scrollxuidesign-portfolio_template [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAdityakishore0%2Fscrollxuidesign-portfolio_template)
