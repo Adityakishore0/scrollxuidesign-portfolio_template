@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext, decodeAudioData } from "@/lib/sound-engine";
+import { getAudioContext, decodeAudioData, isMuted } from "@/lib/sound-engine";
 import type {
   SoundAsset,
   UseSoundOptions,
@@ -48,9 +48,7 @@ export function useSound(
     if (sourceRef.current) {
       try {
         sourceRef.current.stop();
-      } catch {
-        // Already stopped
-      }
+      } catch {}
       sourceRef.current = null;
     }
     setIsPlaying(false);
@@ -58,12 +56,14 @@ export function useSound(
   }, [onStop]);
 
   const play = useCallback(
-    (overrides?: { volume?: number; playbackRate?: number }) => {
-      if (!soundEnabled || !bufferRef.current) return;
+    async (overrides?: { volume?: number; playbackRate?: number }) => {
+      if (!soundEnabled || !bufferRef.current || isMuted()) return;
 
       const ctx = getAudioContext();
 
-      if (ctx.state === "suspended") return;
+      if (ctx.state === "suspended") {
+        await ctx.resume();
+      }
 
       if (interrupt && sourceRef.current) {
         stop();
@@ -109,9 +109,7 @@ export function useSound(
       if (sourceRef.current) {
         try {
           sourceRef.current.stop();
-        } catch {
-          // Already stopped
-        }
+        } catch {}
       }
     };
   }, []);

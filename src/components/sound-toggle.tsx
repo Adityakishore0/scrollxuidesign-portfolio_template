@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { getAudioContext, playSound } from "@/lib/sound-engine";
 import { switchOffSound } from "@/lib/switch-off";
@@ -19,21 +19,22 @@ export function SoundToggle({ className }: { className?: string }) {
   useEffect(() => {
     localStorage.setItem("site-muted", muted ? "true" : "false");
     const ctx = getAudioContext();
-    try {
-      muted ? ctx.suspend() : ctx.resume();
-    } catch {}
+    if (muted) {
+      ctx.suspend();
+    }
   }, [muted]);
 
-  const toggle = () => {
+  const toggle = useCallback(async () => {
+    const ctx = getAudioContext();
+
     if (muted) {
+      await ctx.resume();
       setMuted(false);
     } else {
-      playSound(switchOffSound.dataUri, { volume: 0.25 }).catch(() => {});
-      setTimeout(() => {
-        setMuted(true);
-      }, 60);
+      await playSound(switchOffSound.dataUri, { volume: 0.25 }).catch(() => {});
+      setMuted(true);
     }
-  };
+  }, [muted]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -48,7 +49,7 @@ export function SoundToggle({ className }: { className?: string }) {
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  });
+  }, [toggle]);
 
   return (
     <Tooltip>

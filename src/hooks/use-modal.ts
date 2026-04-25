@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { playSound } from "@/lib/sound-engine";
+import { getAudioContext, playSound, isMuted } from "@/lib/sound-engine";
 import { dropLeatherSound } from "@/lib/drop-leather";
 import { switchOffSound } from "@/lib/switch-off";
 
@@ -27,23 +27,27 @@ export function useModal(
     };
   }, [isOpen]);
 
-  const open = useCallback(() => {
+  const open = useCallback(async () => {
     setOpen(true);
-
-    setTimeout(() => {
-      playSound(dropLeatherSound.dataUri, { volume: 0.2 }).catch(() => {});
-    }, 80);
-
+    if (!isMuted()) {
+      const ctx = getAudioContext();
+      if (ctx.state === "suspended") await ctx.resume();
+      setTimeout(() => {
+        playSound(dropLeatherSound.dataUri, { volume: 0.2 }).catch(() => {});
+      }, 80);
+    }
     onOpen?.();
   }, [setOpen, onOpen]);
 
-  const close = useCallback(() => {
+  const close = useCallback(async () => {
     setOpen(false);
-
-    setTimeout(() => {
-      playSound(switchOffSound.dataUri, { volume: 0.2 }).catch(() => {});
-    }, 60);
-
+    if (!isMuted()) {
+      const ctx = getAudioContext();
+      if (ctx.state === "suspended") await ctx.resume();
+      setTimeout(() => {
+        playSound(switchOffSound.dataUri, { volume: 0.2 }).catch(() => {});
+      }, 60);
+    }
     onClose?.();
   }, [setOpen, onClose]);
 
