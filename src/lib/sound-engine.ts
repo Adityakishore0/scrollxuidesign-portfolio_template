@@ -8,6 +8,11 @@ export function getAudioContext(): AudioContext {
   return audioContext;
 }
 
+export function isMuted(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("site-muted") === "true";
+}
+
 export async function decodeAudioData(dataUri: string): Promise<AudioBuffer> {
   const cached = bufferCache.get(dataUri);
   if (cached) return cached;
@@ -39,13 +44,13 @@ export async function playSound(
   dataUri: string,
   options: PlaySoundOptions = {}
 ): Promise<SoundPlayback> {
+  if (isMuted()) return { stop: () => {} };
+
   const { volume = 1, playbackRate = 1, onEnd } = options;
   const ctx = getAudioContext();
 
   if (ctx.state === "suspended") {
-    return {
-      stop: () => {},
-    };
+    await ctx.resume();
   }
 
   const buffer = await decodeAudioData(dataUri);
